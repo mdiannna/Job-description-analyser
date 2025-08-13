@@ -1,0 +1,7 @@
+langchain
+chromadb
+fastapi
+uvicorn
+langchain[google-genai]
+langchain-community
+tiktoken
