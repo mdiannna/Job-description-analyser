@@ -1,52 +1,25 @@
-from langchain.llms import OpenAI
-from langchain.vectorstores import Chroma
-# from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+# from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from langchain.chat_models import init_chat_model
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request, HTTPException
 
-
+from llm_init import init_llm_and_embeddings
+from langchain_init import init_llm_langchain
 import uvicorn
-import getpass
-
-import os
-# os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
-
-if not os.environ.get("GOOGLE_API_KEY"):
-  os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
 
 
-# embeddings = OpenAIEmbeddings()
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-
+llm, embeddings = init_llm_and_embeddings()
 vector_store = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
 
 texts = ["AI agents are autonomous decision-making systems.", "Vector databases help store and retrieve embeddings efficiently."]
 vector_store.add_texts(texts)
 
 
-
-prompt = PromptTemplate(
-    input_variables=["question"],
-    template="""
-    You are an AI agent that provides answers based on knowledge retrieval.
-    Question: {question}
-    Answer:
-    """
-)
-
-
-# llm = OpenAI()
-llm = init_chat_model("gemini-2.5-flash", model_provider="google_genai")
-
-chain = LLMChain(llm=llm, prompt=prompt)
+chain = init_llm_langchain(llm)
 
 app = FastAPI()
 templates = Jinja2Templates("templates")
