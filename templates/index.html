@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload Example</title>
+    <title>AI Job Description Assistant</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <style>
@@ -12,7 +12,6 @@
             margin: 2rem;
         }
         #processing {
-            display: none;
             margin-top: 1rem;
             font-weight: bold;
             color: #007bff;
@@ -30,7 +29,7 @@
         <button type="button" @click="processDocument()">Submit</button> 
     </form>
     
-    <div id="processing">Processing...</div>
+    <div id="processing" v-if="isProcessing">Processing...</div>
 
     <section>
         <div class="container py-5">
@@ -99,7 +98,7 @@
                   <div data-mdb-input-init class="form-outline">
                     <textarea class="form-control bg-body-tertiary" id="textAreaExample" rows="4"></textarea>
                     <label class="form-label" for="textAreaExample">Type your message</label>
-                    <button class="btn btn-primary" onclick="sendToChat()">send</button>
+                    <button class="btn btn-primary" @click="sendToChat()">send</button>
                   </div>
       
                 </div>
@@ -123,15 +122,12 @@
           delimiters: ['[[', ']]'],  // <-- change Vue delimiters here
           data() {
             return {
-              note: '',
-              note_id: '',
-              is_editing:false,
+              isProcessing: false
             }
           },
           methods: {
             processDocument() {
-              const processingMessage = document.getElementById('processing');
-              processingMessage.style.display = 'block';
+              this.isProcessing = true;
             },            
             sendToChat() {
               let message = "test message todo";
