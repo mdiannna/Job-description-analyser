@@ -6,10 +6,15 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request, HTTPException
+from fastapi import File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 from llm_init import init_llm_and_embeddings
 from langchain_init import init_llm_langchain
 import uvicorn
+import os
+from pathlib import Path
+import shutil
 
 
 # TODO: enable after testing the frontend
@@ -25,13 +30,37 @@ import uvicorn
 app = FastAPI()
 templates = Jinja2Templates("templates")
 
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)  # Create uploads folder if it doesn't exist
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Allow your Vue dev server origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:8080", "http://localhost:8000"],  # add your frontend's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
 async def read_root(request:Request):
     return templates.TemplateResponse("index.html", {"request":request})
+
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile = File(...)):
+    file_path = UPLOAD_DIR / file.filename
+
+    # Save uploaded file to disk
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"filename": file.filename, "path": str(file_path)}
 
 # TODO: enable after testing the frontend and make POST request
 # @app.get("/ask")
