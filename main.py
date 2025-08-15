@@ -54,7 +54,12 @@ async def read_root(request:Request):
 
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
-    file_path = UPLOAD_DIR / file.filename
+    # file_path = UPLOAD_DIR / file.filename
+    jd_filename = "JobDescriptionPDF"
+    # file is saved under same name and rewritten each time
+    file_path = UPLOAD_DIR / jd_filename
+    print("file will be saved to:", file_path)
+
 
     # Save uploaded file to disk
     with file_path.open("wb") as buffer:
