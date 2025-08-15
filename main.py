@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import shutil
 
+from text_processing import read_pdf, tokenize_pdf_text
 
 # TODO: enable after testing the frontend
 # llm, embeddings = init_llm_and_embeddings()
@@ -66,6 +67,18 @@ async def create_upload_file(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     return {"filename": file.filename, "path": str(file_path)}
+
+
+@app.post("/processpdf/")
+async def process_file():
+    jd_filename = "JobDescriptionPDF"
+    pages = read_pdf(jd_filename)
+    splits_pages = tokenize_pdf_text(pages)
+    print("type splits pages:", type(splits_pages[0]))
+    # _ = vector_store.add_documents(documents=splits_pages)
+
+    return {"status":"success"} #TODO: check if succesful
+
 
 # TODO: enable after testing the frontend and make POST request
 # @app.get("/ask")
