@@ -12,8 +12,6 @@ async def read_pdf(file_path):
 
 def tokenize_pdf_text(pages):
     """ Tokenize a pdf text into sentences or paragraphs """
-    pass #TODO return a list of strings
-
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     all_splits = text_splitter.split_documents(pages)
     return all_splits

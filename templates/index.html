@@ -7,11 +7,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <style>
-        #processing {
-            margin-top: 1rem;
-            font-weight: bold;
-            color: #007bff;
-        }
         #chatMessages {
           overflow-y: scroll;
           max-height: 40vh;
@@ -29,7 +24,8 @@
         <button type="button" class="btn btn-primary ms-1" @click="processDocument()" v-if="selectedFile"> Upload and process</button> 
     </form>
 
-    <div id="processing" v-if="isProcessing">Processing...</div>
+    <div class="text-primary" v-if="isProcessing">Processing...</div>
+    <div><p class="text-success">[[processingStatus]]</p></div>
     </section>
 
     <section id="chatSection">
@@ -125,7 +121,8 @@
           data() {
             return {
               isProcessing: false,
-              selectedFile: null
+              selectedFile: null,
+              processingStatus: ''
             }
           },
           methods: {
@@ -152,11 +149,28 @@
               } catch (error) {
                 console.error("Upload failed:", error);
               }
+            },  
+            async processPdf() {
+              try {
+                const response = await axios.post("http://127.0.0.1:8000/processpdf/");
+                console.log("Server response:", response.data);
+                if(response.data["status"]=="success") {
+                  this.isProcessing = false;
+                  this.processingStatus = "Processing pdf file finished succesfully. Now you can start chatting with the AI Assistant about it."
+                  this.selectedFile = null
+                } else {
+                  this.processingStatus = "Error processing document. Please try again."
+                }
+              } catch (error) {
+                console.error("Pdf processing failed:", error);
+                this.processingStatus = "Error processing document. Please try again."
+              }
             },
             processDocument() {
               this.isProcessing = true;
               this.uploadFile()
-            },            
+              this.processPdf()
+            },          
             sendToChat() {
               let message = "test message todo";
 
