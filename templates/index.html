@@ -93,7 +93,7 @@
 
       
                   <div data-mdb-input-init class="form-outline">
-                    <textarea class="form-control bg-body-tertiary" id="textAreaExample" rows="4"></textarea>
+                    <textarea class="form-control bg-body-tertiary" id="textAreaExample" rows="4" v-model="chatMessage"></textarea>
                     <label class="form-label" for="textAreaExample">Type your message</label>
                     <button class="btn btn-primary" @click="sendToChat()">send</button>
                   </div>
@@ -122,7 +122,8 @@
             return {
               isProcessing: false,
               selectedFile: null,
-              processingStatus: ''
+              processingStatus: '',
+              chatMessage: '',
             }
           },
           methods: {
@@ -171,8 +172,9 @@
               this.uploadFile()
               this.processPdf()
             },          
-            sendToChat() {
-              let message = "test message todo";
+            async sendToChat() {
+              const message = this.chatMessage;
+              this.chatMessage = ""
 
               let html_el = `
               <div class="d-flex flex-row justify-content-end mb-4">
@@ -189,10 +191,27 @@
               chat.insertAdjacentHTML("beforeend", html_el);
               // Option 2: directly manipulating HTML
               // chat.innerHTML += html_el;
-            },
-            addResponseToChat() {
-              let message = "test message todo";
 
+              // send the message to the agent:
+              await this.sendMsgToAgent(message)
+            },
+            async sendMsgToAgent(message) {
+              try {
+                const formData = new FormData();
+                formData.append("message", message)
+                const response = await axios.post("http://127.0.0.1:8000/ask", formData);
+                console.log("Server response:", response.data);
+                if(response.data["status"]=="success") {
+                  this.addResponseToChat(response.data["answer"])
+                }else {
+                  alert("Error reaching the GenAI Assistant")
+                }
+
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            },
+            addResponseToChat(message) {
               let html_el = `
               <div class="d-flex flex-row justify-content-start mb-4">
                 <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
