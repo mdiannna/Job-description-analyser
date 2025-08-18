@@ -20,14 +20,14 @@ import shutil
 from text_processing import read_pdf, tokenize_pdf_text
 
 # TODO: enable after testing the frontend
-# llm, embeddings = init_llm_and_embeddings()
-# vector_store = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
+llm, embeddings = init_llm_and_embeddings()
+vector_store = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
 
 # texts = ["AI agents are autonomous decision-making systems.", "Vector databases help store and retrieve embeddings efficiently."]
 # vector_store.add_texts(texts)
 
 
-# chain = init_llm_langchain(llm)
+chain = init_llm_langchain(llm)
 
 app = FastAPI()
 templates = Jinja2Templates("templates")
@@ -77,7 +77,7 @@ async def process_file():
     splits_pages = tokenize_pdf_text(pages)
     print("type splits pages:", type(splits_pages[0]))
     # TODO: enable after testing the frontend and make POST request
-    # _ = vector_store.add_documents(documents=splits_pages)
+    _ = vector_store.add_documents(documents=splits_pages)
 
     return {"status":"success", "nr_of_pages":len(pages)} #TODO: check if succesful
 
@@ -95,11 +95,15 @@ def ask_agent(message: Annotated[str, Form()]):
     question = message
     print("question:", question)
     response = "test test"
-    # relevant_docs = vector_store.similarity_search(question, k=1)
-    # context = " ".join([doc.page_content for doc in relevant_docs])
-    # response = chain.run(question=question + " " + context)
+    relevant_docs = vector_store.similarity_search(question, k=1)
+    context = " ".join([doc.page_content for doc in relevant_docs])
+    response = chain.run(question=question + " " + context)
     return {"status":"success", "answer": response}
 
+@app.get("/analyse-pdf")
+def analyse_uploaded_pdf():
+    all_documents = vector_store.get()["documents"]
+    return all_documents
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
