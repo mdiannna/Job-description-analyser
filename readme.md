@@ -1,14 +1,15 @@
-# Running a LLM with langchain and FastAPI
+# Job-description analyser
 
+A simple GenAI-based assistant for a PDF job description analysis, offering the chat possibility.
+Built by running a LLM with langchain and FastAPI.
 
 Step 1: Setting Up the Environment
 First, install the necessary dependencies.
 
-pip install openai langchain chromadb fastapi uvicorn
+``pip install -r requirements.txt``
 
 Step2: Start the API server with:
 
-uvicorn main:app --reload
-Then, test the endpoint:
+``uvicorn main:app --reload``
 
-curl "http://127.0.0.1:8000/ask?question=What is an AI agent?"
+You will be asked to introduce the Gemini API key
