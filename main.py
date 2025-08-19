@@ -20,7 +20,6 @@ import shutil
 
 from text_processing import read_pdf, tokenize_pdf_text
 
-# TODO: enable after testing the frontend
 llm, embeddings = init_llm_and_embeddings()
 vector_store = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
 
@@ -89,13 +88,13 @@ async def process_file():
     return {"status":"success", "nr_of_pages":len(pages)} #TODO: check if succesful
 
 
-# TODO: enable after testing the frontend and make POST request
 # @app.get("/ask")
 # def ask_agent(question: str):
 #     relevant_docs = vector_store.similarity_search(question, k=1)
 #     context = " ".join([doc.page_content for doc in relevant_docs])
 #     response = chain.run(question=question + " " + context)
 #     return {"response": response}
+
 
 @app.post("/ask")
 def ask_agent(message: Annotated[str, Form()]):
@@ -107,8 +106,9 @@ def ask_agent(message: Annotated[str, Form()]):
     response = chain.run(question=question + " " + context)
     return {"status":"success", "answer": response}
 
-@app.get("/analyse-pdf")
-def analyse_uploaded_pdf(request: Request):
+
+@app.get("/analyse-db-docs")
+def analyse_db_docs(request: Request):
     all_documents = vector_store.get()["documents"]
     # return all_documents
     return templates.TemplateResponse("view_db.html", {"request":request, "documents": json.dumps(all_documents)})
