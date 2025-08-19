@@ -14,6 +14,7 @@ from llm_init import init_llm_and_embeddings
 from langchain_init import init_llm_langchain
 import uvicorn
 import os
+import json
 from pathlib import Path
 import shutil
 
@@ -101,9 +102,11 @@ def ask_agent(message: Annotated[str, Form()]):
     return {"status":"success", "answer": response}
 
 @app.get("/analyse-pdf")
-def analyse_uploaded_pdf():
+def analyse_uploaded_pdf(request: Request):
     all_documents = vector_store.get()["documents"]
-    return all_documents
+    # return all_documents
+    return templates.TemplateResponse("view_db.html", {"request":request, "documents": json.dumps(all_documents)})
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
