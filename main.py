@@ -73,13 +73,19 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 @app.post("/processpdf/")
 async def process_file():
+    # first delete everything in the vector store:
+    all_docs_ids = vector_store.get()['ids']
+    if len(all_docs_ids)>0:
+        _ = vector_store.delete(all_docs_ids); # deletes all entries
+
     jd_filename =  UPLOAD_DIR / "JobDescriptionPDF"
     pages = await read_pdf(jd_filename)
     splits_pages = tokenize_pdf_text(pages)
     print("type splits pages:", type(splits_pages[0]))
     # TODO: enable after testing the frontend and make POST request
-    _ = vector_store.add_documents(documents=splits_pages)
+    ids_docs = vector_store.add_documents(documents=splits_pages)
 
+    print("ids of the docs added:", ids_docs)
     return {"status":"success", "nr_of_pages":len(pages)} #TODO: check if succesful
 
 

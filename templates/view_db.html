@@ -16,10 +16,11 @@
 <body>
    <div id="app">
     <section class="container px-auto">
-      <h1 class="text-center pt-3 pb-3">Job Description Analyser - view documents from database </h1>
+      <h1 class="text-center pt-3 pb-3">Job Description Analyser - view all texts from the database </h1>
       <div v-for="text in texts">
         <p>[[text]]</p>
       </div>
+      <p v-if="texts">No documents found in the vector store.</p>
       </section>
     </div>
 
